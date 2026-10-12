@@ -18,6 +18,7 @@ public class Agence {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long idAgence;
 
     private String nom;
