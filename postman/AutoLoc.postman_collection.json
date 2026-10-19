@@ -1,0 +1,404 @@
+{
+  "info": {
+    "_postman_id": "a2bf6e43-bb2e-49f4-8cbf-39e1c92b3bf0",
+    "name": "AutoLoc - CRUD API",
+    "description": "Scénarios CRUD pour Vehicule, Client et Agence. Lancer les requêtes dans l'ordre, ou exécuter la collection Runner. Variable de base : baseUrl (par défaut http://localhost:8081).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081"
+    },
+    {
+      "key": "vehiculeId",
+      "value": ""
+    },
+    {
+      "key": "vehiculePlate",
+      "value": ""
+    },
+    {
+      "key": "clientId",
+      "value": ""
+    },
+    {
+      "key": "agenceId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Vehicules",
+      "item": [
+        {
+          "name": "GET - Lister les véhicules",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/vehicules"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Le corps est une liste JSON', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST - Créer un véhicule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"immatriculation\": \"{{vehiculePlate}}\",\n  \"marque\": \"Toyota\",\n  \"modele\": \"Yaris\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 85.00,\n  \"statut\": \"DISPONIBLE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vehicules"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('vehiculePlate', 'TEST-LOC-' + Date.now().toString().slice(-10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.idVehicule).to.exist;",
+                  "pm.collectionVariables.set('vehiculeId', body.idVehicule);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET - Consulter le véhicule créé",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/vehicules/{{vehiculeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Identifiant du véhicule conforme', function () { pm.expect(pm.response.json().idVehicule).to.eql(Number(pm.collectionVariables.get('vehiculeId'))); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT - Modifier le véhicule créé",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"immatriculation\": \"{{vehiculePlate}}\",\n  \"marque\": \"Toyota\",\n  \"modele\": \"Yaris Hybrid\",\n  \"categorie\": \"CITADINE\",\n  \"tarifJournalier\": 95.00,\n  \"statut\": \"DISPONIBLE\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vehicules/{{vehiculeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Les changements sont enregistrés', function () { pm.expect(pm.response.json().modele).to.eql('Yaris Hybrid'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Supprimer le véhicule créé",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/vehicules/{{vehiculeId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "GET - Lister les clients",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clients"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Le corps est une liste JSON', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST - Créer un client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Test\",\n  \"prenom\": \"Postman\",\n  \"email\": \"postman.autoloc@example.com\",\n  \"telephone\": \"20000001\",\n  \"numPermis\": \"TEST-PERMIS-001\",\n  \"dateInscription\": \"2026-01-01\"\n}"
+            },
+            "url": "{{baseUrl}}/api/clients"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.idClient).to.exist;",
+                  "pm.collectionVariables.set('clientId', body.idClient);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET - Consulter le client créé",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/clients/{{clientId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Identifiant du client conforme', function () { pm.expect(pm.response.json().idClient).to.eql(Number(pm.collectionVariables.get('clientId'))); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT - Modifier le client créé",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Test\",\n  \"prenom\": \"Postman modifié\",\n  \"email\": \"postman.autoloc@example.com\",\n  \"telephone\": \"20000002\",\n  \"numPermis\": \"TEST-PERMIS-001\",\n  \"dateInscription\": \"2026-01-01\"\n}"
+            },
+            "url": "{{baseUrl}}/api/clients/{{clientId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Les changements sont enregistrés', function () { pm.expect(pm.response.json().prenom).to.eql('Postman modifié'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Supprimer le client créé",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/clients/{{clientId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Agences",
+      "item": [
+        {
+          "name": "GET - Lister les agences",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agences"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Le corps est une liste JSON', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST - Créer une agence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Agence Test Postman\",\n  \"ville\": \"Tunis\",\n  \"adresse\": \"1 rue de Test\",\n  \"telephone\": \"71000001\"\n}"
+            },
+            "url": "{{baseUrl}}/api/agences"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 201', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "pm.expect(body.idAgence).to.exist;",
+                  "pm.collectionVariables.set('agenceId', body.idAgence);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET - Consulter l'agence créée",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/agences/{{agenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Identifiant de l’agence conforme', function () { pm.expect(pm.response.json().idAgence).to.eql(Number(pm.collectionVariables.get('agenceId'))); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT - Modifier l'agence créée",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nom\": \"Agence Test Postman modifiée\",\n  \"ville\": \"Sousse\",\n  \"adresse\": \"2 rue de Test\",\n  \"telephone\": \"71000002\"\n}"
+            },
+            "url": "{{baseUrl}}/api/agences/{{agenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Les changements sont enregistrés', function () { pm.expect(pm.response.json().ville).to.eql('Sousse'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE - Supprimer l'agence créée",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/agences/{{agenceId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Réponse HTTP 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
